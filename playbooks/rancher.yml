@@ -1,0 +1,9 @@
+---
+- hosts: nodes
+  become: true
+  tasks:
+    - name: "install docker"
+      shell: "curl https://releases.rancher.com/install-docker/18.09.sh | sh"
+    - name: "rancher"
+      shell: "sudo docker run -d --privileged --restart=unless-stopped --net=host -v /etc/kubernetes:/etc/kubernetes -v /var/run:/var/run rancher/rancher-agent:v2.4.2 --server https://xxx.xxx.xxx.xxx --token XXXX --ca-checksum XXXX --etcd --controlplane --worker"
+

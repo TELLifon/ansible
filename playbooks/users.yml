@@ -1,0 +1,32 @@
+---
+- hosts: all
+  vars:
+    users:
+      - name: bastian.widmer
+        github: dasrecht
+      - name: michael.schmid
+        github: schnitzel
+  tasks:
+    - name: "make sure we have a wheel group"
+      group:
+        name: wheel
+        state: present
+    - name: Allow 'wheel' group to have passwordless sudo
+      lineinfile:
+        dest: /etc/sudoers
+        state: present
+        regexp: '^%wheel'
+        line: '%wheel ALL=(ALL) NOPASSWD: ALL'
+        validate: 'visudo -cf %s'
+    - name: "Create user accounts and add users to groups"
+      user:
+        name: "{{ item.name }}"
+        groups: "wheel"
+        shell: /bin/bash
+      with_items: "{{ users }}"
+    - name: "adding ssh keys from github"
+      authorized_key:
+        user: "{{ item.name }}"
+        state: present
+        key: https://github.com/{{ item.github }}.keys
+      with_items: "{{ users }}"
